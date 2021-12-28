@@ -199,7 +199,7 @@ for key_e, value_e in elems.items():
         #print(key_c)
         #print(key_e)
         
-        if key_c in key_e:
+        if key_c in key_e or key_c == key_e[-1]+key_e[0]:
             Alocal_1 = Aelem_node(nodes[key_c[0]], value_e[-1], value_c[1], value_c[2])
             Alocal_2 = Aelem_node(nodes[key_c[1]], value_e[-1], value_c[1], value_c[2])
             Alocal_3 = Aelem_node(nodes[key_c[0]], value_e[-1], value_c[1], value_c[2])
