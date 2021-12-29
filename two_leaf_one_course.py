@@ -1,8 +1,8 @@
 import numpy as np
-nb_course = 30
+nb_course = 1
 #define nodes:
 brick_length = 0.5/2
-brick_height = 3.9/30
+brick_height = 3.9/nb_course
 # brick_length = 0.2
 # brick_height = 1
 ro = 18.0

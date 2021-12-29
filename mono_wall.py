@@ -1,8 +1,8 @@
 import numpy as np
-nb_course = 30
 #define nodes:
-brick_length = 0.5/2
-brick_height = 3.9/30
+nb_course = 1
+brick_length = 0.25
+brick_height = 3.9
 # brick_length = 0.2
 # brick_height = 1
 ro = 18.0
@@ -18,28 +18,17 @@ nodes = dict()
 #     6 : [brick_length*2, 0]
 # }
 
-#30 courses, 2 leaves
+#1 leaves
 for i in range(0,nb_course+1):
-    nodes[3*i+1] = [0, (nb_course-i)*brick_height]
-    nodes[3*i+2] = [brick_length, (nb_course-i)*brick_height]
-    nodes[3*i+3] = [2*brick_length, (nb_course-i)*brick_height]
-# nodes[94] = [0, -brick_height]
-# nodes[95] = [2*brick_length, -brick_height]
+    nodes[2*i+1] = [0, (nb_course-i)*brick_height]
+    nodes[2*i+2] = [brick_length, (nb_course-i)*brick_height]
+
 
 #define elements:
 
 elems = dict()#Fx
 for i in range(0,nb_course):
-    elems[(3*i+1, 3*i+2, 3*i+5, 3*i+4, 3*i+1)] = [0]
-    elems[(3*i+2, 3*i+3, 3*i+6, 3*i+5, 3*i+2)] = [0]
-# elems[(91, 92, 93, 95, 95)] = [0]
-# elems = {
-#     (1,2,5,4): [0],
-#     (2,3,6,5): [0]
-# }
-# elems = {
-#     'ABED': [0]
-# }
+    elems[(3*i+1, 3*i+2, 3*i+4, 3*i+3, 3*i+1)] = [0]
 
 for key, value in elems.items():
     if len(key) == 5:
@@ -60,25 +49,19 @@ mu = 0.58
 #mu = 0.7
 conts = dict()#ground or not, t,n
 for i in range(0,nb_course):
-    conts[(3*i+5, 3*i+4)] = [0, [1,0], [0,1]]
-    conts[(3*i+5, 3*i+2)] = [1, [0,-1], [1,0]]
-    conts[(3*i+6, 3*i+5)] = [0, [1,0], [0,1]]
-# conts[(94, 95)] = [0, [1,0], [0,1]]
-# conts = {
-#     (4,5): [0, [1,0], [0,1]],
-#     (2,5): [1, [0,1], [1,0]],
-#     (5,6): [0, [1,0], [0,1]]
-# }
-# conts = {
-#     'DE': [0, [1,0], [0,1]]
-# }
+    conts[(3*i+4, 3*i+3)] = [0, [1,0], [0,1]]
 
 def Aelem_node(node, elem_center, t, n, reverse = False):
     t = np.array(t)
     n = np.array(n)
+    #print(t)
+    #print(n)
+    #print(reverse)
     if reverse:
         t = t*(-1)
         n = n*(-1)
+    #print(t)
+    #print(n)
     R = np.array(node) - np.array(elem_center)
     #print(R)
     Alocal = np.matrix([
@@ -86,7 +69,6 @@ def Aelem_node(node, elem_center, t, n, reverse = False):
        [1*t[1], 1*n[1]],
        [1*float(np.cross(R,t)), 1*float(np.cross(R,n))]
     ])
-    #print(float(np.cross(R,t)))
     return Alocal
 
 #global A matrix
@@ -129,7 +111,7 @@ for key_e, value_e in elems.items():
         col+=8
     row+=3
 
-#print(Aglobal[-3:])
+print(Aglobal)
 
 #global Y matrix
 Y = np.zeros((3*4*len(conts), 2*4*len(conts)))
@@ -239,7 +221,7 @@ def main():
             #aval.append([liveload])#the live load is applied to the first element in the x direction
             col_index = []
             col_value = []
-            for i in range(nb_course*2):
+            for i in range(nb_course*1):
                 col_index.extend([3*i])
                 col_value.extend([liveload])
             asub.append(col_index)
