@@ -113,20 +113,20 @@ brick_height = 3.9/30
 #brick_height = 1
 nodes = dict()
 nodes = {
-    'A' : [0, brick_height],
-    'B' : [brick_length, brick_height],
-    'C' : [brick_length*2, brick_height],
-    'D' : [0, 0],
-    'E' : [brick_length, 0],
-    'F' : [brick_length*2, 0]
+    1 : [0, brick_height],
+    2 : [brick_length, brick_height],
+    3 : [brick_length*2, brick_height],
+    4 : [0, 0],
+    5 : [brick_length, 0],
+    6 : [brick_length*2, 0]
 }
 
 #define elements:
 ro = 18.0
 elems = dict()
 elems = {
-    'ABED': [0],#FX
-    'BCFE': [0]
+    (1,2,5,4): [0],#FX
+    (2,3,6,5): [0]
 }
 # elems = {
 #     'ABED': [0]
@@ -145,9 +145,9 @@ mu = 0.58
 #mu = 0.7
 conts = dict()
 conts = {
-    'DE': [0, [1,0], [0,1]],#ground or not, t,n
-    'BE': [1, [0,1], [1,0]],
-    'EF': [0, [1,0], [0,1]]
+    (4,5): [0, [1,0], [0,1]],#ground or not, t,n
+    (2,5): [1, [0,1], [1,0]],
+    (5,6): [0, [1,0], [0,1]]
 }
 # conts = {
 #     'DE': [0, [1,0], [0,1]]
@@ -190,6 +190,17 @@ def Aelem_node(node, elem_center, t, n, reverse = False):
 #             Alocal = np.concatenate(Alocal_2, Alocal_1, Alocal_4, Alocal_3, axis = 1)
 #             elemAM.update(key+key[i+1]+key[i]: Alocal)
 
+def is_subtuple_2(tupA, tupB):
+    '''
+    check if tuple A(two elements) is a sub tuple of tuple B
+    '''
+    for i in range(-1,len(tupB)-1):
+        if (tupB[i],tupB[i+1]) == tupA:
+            return True
+    
+    return False
+
+
 #global A matrix
 Aglobal = np.zeros((3*len(elems), 2*4*len(conts)))
 row = 0
@@ -199,14 +210,16 @@ for key_e, value_e in elems.items():
         #print(key_c)
         #print(key_e)
         
-        if key_c in key_e or key_c == key_e[-1]+key_e[0]:
+        #if key_c in key_e or key_c == key_e[-1]+key_e[0]:
+        if is_subtuple_2(key_c, key_e) or key_c == (key_e[-1]+key_e[0]):
             Alocal_1 = Aelem_node(nodes[key_c[0]], value_e[-1], value_c[1], value_c[2])
             Alocal_2 = Aelem_node(nodes[key_c[1]], value_e[-1], value_c[1], value_c[2])
             Alocal_3 = Aelem_node(nodes[key_c[0]], value_e[-1], value_c[1], value_c[2])
             Alocal_4 = Aelem_node(nodes[key_c[1]], value_e[-1], value_c[1], value_c[2])
             Alocal = np.concatenate((Alocal_1, Alocal_2, Alocal_3, Alocal_4), axis = 1)
             Aglobal[row:row+3, col:col+8] = Alocal
-        elif key_c[1]+key_c[0] in key_e or key_c == key_e[0]+key_e[-1]:
+        #elif key_c[1]+key_c[0] in key_e or key_c == key_e[0]+key_e[-1]:
+        elif is_subtuple_2((key_c[1],key_c[0]), key_e) or key_c == key_e[0]+key_e[-1]:
             Alocal_1 = Aelem_node(nodes[key_c[0]], value_e[-1], value_c[1], value_c[2], reverse = True)
             Alocal_2 = Aelem_node(nodes[key_c[1]], value_e[-1], value_c[1], value_c[2], reverse = True)
             Alocal_3 = Aelem_node(nodes[key_c[0]], value_e[-1], value_c[1], value_c[2], reverse = True)
