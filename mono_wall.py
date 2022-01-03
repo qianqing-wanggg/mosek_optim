@@ -1,7 +1,7 @@
 import numpy as np
 #define nodes:
 nb_course = 1
-brick_length = 0.25
+brick_length = 0.5
 brick_height = 3.9
 # brick_length = 0.2
 # brick_height = 1
@@ -168,10 +168,7 @@ def main():
                 for i in range(3*4):
                     bkc.append(mosek.boundkey.up)
                     blc.append(-inf)
-                    buc.append(0.0)    
-            # bkc.append(mosek.boundkey.fx)      
-            # blc.append(0.0)
-            # buc.append(0.0) 
+                    buc.append(0.0) 
 
             # Bound keys for variables
             bkx = []
@@ -226,6 +223,8 @@ def main():
                 col_value.extend([liveload])
             asub.append(col_index)
             aval.append(col_value)#the live load is applied to the first element and second in the x direction
+
+            
             # asub.append([90])
             # aval.append([liveload])#the live load is applied to the first element in the x direction
 
