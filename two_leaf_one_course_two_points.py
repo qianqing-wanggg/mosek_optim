@@ -61,7 +61,7 @@ mu = 0.58
 conts = dict()#ground or not, t,n
 for i in range(0,nb_course):
     conts[(3*i+5, 3*i+4)] = [0, [1,0], [0,1]]
-    conts[(3*i+5, 3*i+2)] = [1, [0,1], [1,0]]
+    #conts[(3*i+5, 3*i+2)] = [1, [0,1], [1,0]]
     conts[(3*i+6, 3*i+5)] = [0, [1,0], [0,1]]
 # conts[(94, 95)] = [0, [1,0], [0,1]]
 # conts = {
@@ -150,7 +150,7 @@ for key, value in conts.items():
 #print(Y)
 
 #liveload
-liveload = mass_unit
+liveload = mass_unit*2
 
 import sys
 import mosek
@@ -246,7 +246,7 @@ def main():
             #aval.append([liveload])#the live load is applied to the first element in the x direction
             col_index = []
             col_value = []
-            for i in range(nb_course*2):
+            for i in range(1,nb_course*2,2):
                 col_index.extend([3*i])
                 col_value.extend([liveload])
             asub.append(col_index)

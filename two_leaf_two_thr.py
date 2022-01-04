@@ -29,17 +29,18 @@ for i in range(0,nb_course+1):
 #define elements:
 
 elems = dict()#Fx
-for i in range(0,nb_course):
+for i in range(0,7):
     elems[(3*i+1, 3*i+2, 3*i+5, 3*i+4, 3*i+1)] = [0]
     elems[(3*i+2, 3*i+3, 3*i+6, 3*i+5, 3*i+2)] = [0]
-# elems[(91, 92, 93, 95, 95)] = [0]
-# elems = {
-#     (1,2,5,4): [0],
-#     (2,3,6,5): [0]
-# }
-# elems = {
-#     'ABED': [0]
-# }
+elems[(22, 23, 24, 27, 26, 25, 22)] = [0]
+for i in range(8,8+14):
+    elems[(3*i+1, 3*i+2, 3*i+5, 3*i+4, 3*i+1)] = [0]
+    elems[(3*i+2, 3*i+3, 3*i+6, 3*i+5, 3*i+2)] = [0]
+elems[(67, 68, 69, 72, 71, 70, 67)] = [0]
+for i in range(8+14+1, 8+14+1+7):
+    elems[(3*i+1, 3*i+2, 3*i+5, 3*i+4, 3*i+1)] = [0]
+    elems[(3*i+2, 3*i+3, 3*i+6, 3*i+5, 3*i+2)] = [0]
+
 
 for key, value in elems.items():
     if len(key) == 5:
@@ -49,20 +50,37 @@ for key, value in elems.items():
         value.append(mass)
         center = 0.5*(np.array(nodes[key[0]])+np.array(nodes[key[2]]))
         value.append(center)
-    # else:
-    #     mass = 2*ro*brick_length*brick_height
-    #     value.append(mass)
-    #     center = np.array([brick_length, -brick_height/2])
-    #     value.append(center)
+    else:
+        mass = 2*mass_unit
+        value.append(mass)
+        center = 0.5*(np.array(nodes[key[0]])+np.array(nodes[key[3]]))
+        value.append(center)
 
 #define contacts:
 mu = 0.58
 #mu = 0.7
 conts = dict()#ground or not, t,n
-for i in range(0,nb_course):
+for i in range(0,7):
+    conts[(3*i+5, 3*i+4)] = [0, [1,0], [0,1]]
+    conts[(3*i+5, 3*i+2)] = [1, [0,-1], [1,0]]
+    conts[(3*i+6, 3*i+5)] = [0, [1,0], [0,1]]
+
+conts[(26, 25)] = [0, [1,0], [0,1]]
+conts[(27, 26)] = [0, [1,0], [0,1]]
+
+for i in range(8,8+14):
+    conts[(3*i+5, 3*i+4)] = [0, [1,0], [0,1]]
+    conts[(3*i+5, 3*i+2)] = [1, [0,-1], [1,0]]
+    conts[(3*i+6, 3*i+5)] = [0, [1,0], [0,1]]
+
+#conts[(71, 70)] = [0, [1,0], [0,1]]
+conts[(72, 71)] = [0, [1,0], [0,1]]
+
+for i in range(8+14+1, 8+14+1+7):
     conts[(3*i+5, 3*i+4)] = [0, [1,0], [0,1]]
     #conts[(3*i+5, 3*i+2)] = [1, [0,-1], [1,0]]
     conts[(3*i+6, 3*i+5)] = [0, [1,0], [0,1]]
+
 # conts[(94, 95)] = [0, [1,0], [0,1]]
 # conts = {
 #     (4,5): [0, [1,0], [0,1]],
@@ -219,6 +237,7 @@ def main():
                     bkx.append(mosek.boundkey.fr)
                     blx.append(-inf)
                     bux.append(+inf)
+                
             bkx.append(mosek.boundkey.fr)
             blx.append(-inf)
             bux.append(+inf)
@@ -258,7 +277,17 @@ def main():
             #aval.append([liveload])#the live load is applied to the first element in the x direction
             col_index = []
             col_value = []
-            for i in range(0,len(elems),1):
+            for i in range(0,14):
+                col_index.extend([3*i])
+                col_value.extend([liveload])
+            col_index.extend([14*3])
+            col_value.extend([liveload*2])
+            for i in range(15,43):
+                col_index.extend([3*i])
+                col_value.extend([liveload])
+            col_index.extend([43*3])
+            col_value.extend([liveload*2])
+            for i in range(44,58):
                 col_index.extend([3*i])
                 col_value.extend([liveload])
             asub.append(col_index)
