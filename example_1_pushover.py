@@ -603,7 +603,7 @@ def main():
             disps.append(i*disp_incre)
             cal_disp_update_x()
             if i*disp_incre == 0.2:
-                plot_elements(elems)
+                plot_elements(elems,title  = 'collapse mechanism at d = 0.2m')
             i+=1
         else:
             break
