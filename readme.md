@@ -21,11 +21,11 @@ This benchmark is to show the impact of number of headers of two leaves masonry 
 
 This benchmarks is originally proposed by [Francesco][Francesco et al. 2021] in 2021. The collapse mechanism obtained is shown below:
 
-![collapse mechanism](./figures/pushover_wall_mechanism_d200.png])
+![collapse mechanism](./figures/pushover_wall_mechanism_d200.png)
 
 The pushover curve from the rigid contact model is:
 
-![pushover curve of the wall panel- rigid contact model](./figures/pushover_rigid_curve.png])
+![pushover curve of the wall panel- rigid contact model](./figures/pushover_rigid_curve.png)
 
 [Francesco 2019]: https://link.springer.com/article/10.1007/s10518-019-00722-0
 [Francesco et al. 2021]: https://onlinelibrary.wiley.com/doi/full/10.1002/eqe.3512
