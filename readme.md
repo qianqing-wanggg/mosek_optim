@@ -32,9 +32,10 @@ The differences in modelling are noted here:
 - The original article used rounded blocks.
 - The original article used Lagrange multiplier to obtain kinematic variables. The same difference is observed in benchmark 1.
 
-But in the work of [Gilbert in 2006][Gilert et al. 2006] where the same wall geometry is studied using rigid modeling, the collapse load multiplier of the initial configuration compares well with my implementation, which is around 0.64.
+But in the work of [Gilbert in 2006][Gilert et al. 2006] and [Ferris in 2001][Ferris and Tin-Loi 2001] where the same wall geometry is studied using rigid modeling, the collapse load multiplier of the initial configuration compares well with my implementation, which is around 0.64.
 
 
 [Francesco 2019]: https://link.springer.com/article/10.1007/s10518-019-00722-0
 [Francesco et al. 2021]: https://onlinelibrary.wiley.com/doi/full/10.1002/eqe.3512
 [Gilert et al. 2006]: https://www.sciencedirect.com/science/article/abs/pii/S0045794906000356
+[Ferris and Tin-Loi 2001]: https://www.sciencedirect.com/science/article/pii/S0020740399001113?via=ihub#FIG3
