@@ -35,7 +35,7 @@ for row in range(3):
 #define contacts:
 mu = 0.65
 #mu = 0.7
-conts = dict()#key is the node index, value: vertical/horizontal contact, t, n
+conts = dict()#key is the node index, value: vertical(0)/horizontal(1), t, n
 for row in range(3):
     for col in range(4):
         conts[(80*row+col*4+4+20, 80*row+col*4+4, 80*row+col*4+5+20, 80*row+col*4+5)] = [0, [0,-1], [1,0]]
@@ -220,16 +220,16 @@ def cal_Agloabl(elems, conts):
             #print(key_c)
             #print(key_e)
             
-            #if key_c in key_e or key_c == key_e[-1]+key_e[0]:
-            if is_subtuple_2((key_c[0],key_c[1]), key_e) or is_subtuple_2((key_c[2],key_c[3]), key_e):# or key_c == (key_e[-1]+key_e[0]):
+            #the order of node sequence change the orientation of t and n
+            if is_subtuple_2((key_c[0],key_c[1]), key_e) or is_subtuple_2((key_c[2],key_c[3]), key_e):
                 Alocal_1 = Aelem_node(nodes[key_c[0]], value_e[-1], value_c[1], value_c[2])
                 Alocal_2 = Aelem_node(nodes[key_c[1]], value_e[-1], value_c[1], value_c[2])
                 Alocal_3 = Aelem_node(nodes[key_c[2]], value_e[-1], value_c[1], value_c[2])
                 Alocal_4 = Aelem_node(nodes[key_c[3]], value_e[-1], value_c[1], value_c[2])
                 Alocal = np.concatenate((Alocal_1, Alocal_2, Alocal_3, Alocal_4), axis = 1)
                 Aglobal[row:row+3, col:col+8] = Alocal
-            #elif key_c[1]+key_c[0] in key_e or key_c == key_e[0]+key_e[-1]:
-            elif is_subtuple_2((key_c[1],key_c[0]), key_e) or is_subtuple_2((key_c[3],key_c[2]), key_e):# or key_c == key_e[0]+key_e[-1]:
+
+            elif is_subtuple_2((key_c[1],key_c[0]), key_e) or is_subtuple_2((key_c[3],key_c[2]), key_e):
                 Alocal_1 = Aelem_node(nodes[key_c[0]], value_e[-1], value_c[1], value_c[2], reverse = True)
                 Alocal_2 = Aelem_node(nodes[key_c[1]], value_e[-1], value_c[1], value_c[2], reverse = True)
                 Alocal_3 = Aelem_node(nodes[key_c[2]], value_e[-1], value_c[1], value_c[2], reverse = True)
