@@ -1,26 +1,27 @@
 import numpy as np
-#plot elements
 import matplotlib.pyplot as plt
 from matplotlib import collections  as mc
 import math
 
-disp_incre = 0.001
-node_crutial = 20
-#define nodes:
+disp_incre = 0.01
+node_crutial = 20 #control node index
+
 nb_course = 6
 nb_unit = 10
 unit_length = 0.2
 unit_height = 0.175
 unit_weigh = 10
 mass_unit = unit_weigh*unit_length*unit_height
-#mass_unit = 3.6
-nodes = dict()
+print_detail = False
+
+#define nodes:
+nodes = dict()#key is the node index, value is the xy coordinate
 for i in range(0,nb_course*2+1):
     for col in range(1, nb_unit*2+1):
         nodes[(nb_unit*2)*i+col] = [math.floor(col/2)*unit_length, (nb_course-math.floor((i+1)/2))*unit_height]
 
 #define elements:
-elems = dict()#Fx
+elems = dict()#key is the boundary node index, value is the element size, mass, center
 for row in range(3):
     for col in range(5):
         elems[(80*row+col*4+1, 80*row+col*4+2, 80*row+col*4+3, 80*row+col*4+4, \
@@ -64,7 +65,7 @@ def plot_elements(elems, title = 'initial elements'):
     ax.set_title(title)
     plt.show()
 
-def plot_conts(conts):
+def plot_conts(conts, title = 'initial contacts'):
     lines = []
     for key, value in conts.items():
         boundary_points = []
@@ -78,6 +79,7 @@ def plot_conts(conts):
     ax.set_xlim(-0.2*unit_length*nb_unit, 1.2*unit_length*nb_unit)
     ax.set_ylim(-0.2*unit_height*nb_course, 1.2*unit_height*nb_course)
     ax.add_collection(lc)
+    ax.set_title(title)
     plt.show()
 plot_conts(conts)
 
@@ -161,10 +163,6 @@ def dist_point_line(point, line_p1, line_p2):
     ab_2 = np.sum(np.power(line_p1-line_p2, 2))
     if cb_2 < ab_dot_cb_2/ab_2:
         return 0
-        return np.sqrt(-cb_2 + ab_dot_cb_2/ab_2)#g should always be positive
-        print(point, line_p1, line_p2)
-        print(cb_2)
-        print(ab_dot_cb_2/ab_2)
     return np.sqrt(cb_2 - ab_dot_cb_2/ab_2)
 #g matrix
 g = []
@@ -359,30 +357,19 @@ def cal_force_multi():
                     if Y[row][col] != 0:
                         col_index.append(row+len(elems)*3)
                         col_value.append(Y[row][col])
-                # if col == len(conts)*2*4-2 or col == len(conts)*2*4-4 or col == len(conts)*2*4-18 or col == len(conts)*2*4-20\
-                # or col == len(conts)*2*4-6 or col == len(conts)*2*4-8 or col == len(conts)*2*4-22 or col == len(conts)*2*4-24:
-                #     col_index.append(len(elems)*3+3*4*len(conts))
-                #     col_value.append(1)
-                
                 asub.append(col_index)
                 aval.append(col_value)
-            # asub.append([len(elems)*3+3*4*len(conts)])
-            # aval.append([liveload])
-            #asub.append([0])
-            #aval.append([liveload])#the live load is applied to the first element in the x direction
+
             col_index = []
             col_value = []
             i=0
             for key, value in elems.items():
                 col_index.extend([3*i])
-                col_value.extend([-liveload*value[0]])
+                col_value.extend([-liveload*value[0]])#the live load is applied to every element in the x direction
                 i+=1
             asub.append(col_index)
-            aval.append(col_value)#the live load is applied to the first element and second in the x direction
+            aval.append(col_value)
             
-            
-            # asub.append([90])
-            # aval.append([liveload])#the live load is applied to the first element in the x direction
 
 
             numvar = len(bkx)
@@ -398,24 +385,23 @@ def cal_force_multi():
 
             for j in range(numvar):
                 # Set the linear term c_j in the objective.
-                print(c[j])
+
                 task.putcj(j, c[j])
-                print("c list complete")
+
 
                 # Set the bounds on variable j
                 # blx[j] <= x_j <= bux[j]
                 task.putvarbound(j, bkx[j], blx[j], bux[j])
-                print("c bounds complete")
+
 
                 # Input column j of A
                 task.putacol(j,                  # Variable (column) index.
                              asub[j],            # Row index of non-zeros in column j.
                              aval[j])            # Non-zero Values of column j.
-                print("A matrixcomplete")
 
             # Set the bounds on constraints.
              # blc[i] <= constraint_i <= buc[i]
-            print(numcon)
+
             for i in range(numcon):
                 task.putconbound(i, bkc[i], blc[i], buc[i])
 
@@ -423,11 +409,11 @@ def cal_force_multi():
             task.putobjsense(mosek.objsense.maximize)
 
             # Solve the problem
-            task.writedata("data.opf")
             task.optimize()
-            # Print a summary containing information
-            # about the solution for debugging purposes
-            task.solutionsummary(mosek.streamtype.msg)
+            if print_detail:
+                # Print a summary containing information
+                # about the solution for debugging purposes
+                task.solutionsummary(mosek.streamtype.msg)
 
             # Get status information about the solution
             solsta = task.getsolsta(mosek.soltype.bas)
@@ -436,13 +422,14 @@ def cal_force_multi():
                 xx = [0.] * numvar
                 task.getxx(mosek.soltype.bas, # Request the basic solution.
                            xx)
-                
-                print("Optimal solution: ")
-                for i in range(numvar):
-                    print("x[" + str(i) + "]=" + str(xx[i]))
+                if print_detail:
+                    print("Optimal solution: ")
+                    for i in range(numvar):
+                        print("x[" + str(i) + "]=" + str(xx[i]))
                 return xx[-1]
             else:
-                print("Other solution status")
+                if print_detail:
+                    print("Other solution status")
                 return 0
 
 def cal_disp_update_x():
@@ -468,8 +455,6 @@ def cal_disp_update_x():
                             mosek.boundkey.fx])
                     blc.extend([g[2*g_index], g[2*g_index+1]])
                     buc.extend([g[2*g_index], g[2*g_index+1]])
-                    #blc.extend([0.0, 0.0,])
-                    #buc.extend([0.0, 0.0])
                     g_index+=1
 
             # Bound keys for variables
@@ -553,7 +538,6 @@ def cal_disp_update_x():
 
             # Set the bounds on constraints.
              # blc[i] <= constraint_i <= buc[i]
-            print(numcon)
             for i in range(numcon):
                 task.putconbound(i, bkc[i], blc[i], buc[i])
 
@@ -561,11 +545,11 @@ def cal_disp_update_x():
             task.putobjsense(mosek.objsense.minimize)
 
             # Solve the problem
-            task.writedata("data.opf")
             task.optimize()
-            # Print a summary containing information
-            # about the solution for debugging purposes
-            task.solutionsummary(mosek.streamtype.msg)
+            if print_detail:
+                # Print a summary containing information
+                # about the solution for debugging purposes
+                task.solutionsummary(mosek.streamtype.msg)
 
             # Get status information about the solution
             solsta = task.getsolsta(mosek.soltype.bas)
@@ -574,9 +558,10 @@ def cal_disp_update_x():
                 xx = [0.] * numvar
                 task.getxx(mosek.soltype.bas, # Request the basic solution.
                            xx)
-                print("Optimal solution: ")
-                for i in range(numvar):
-                    print("x[" + str(i) + "]=" + str(xx[i]))
+                if print_detail:
+                    print("Optimal solution: ")
+                    for i in range(numvar):
+                        print("x[" + str(i) + "]=" + str(xx[i]))
                 #plot_elements(elems, xx, title = 'mechanism under horizontal load')
                 factor = normalize_disp_factor(elems, xx)
                 for i in range(len(xx)):
@@ -585,7 +570,8 @@ def cal_disp_update_x():
                 cal_elem_center(elems)
                 #plot_elements(elems)
             else:
-                print("Other solution status")
+                if print_detail:
+                    print("Other solution status")
 
 
 def main():
@@ -596,8 +582,7 @@ def main():
         cal_gap(conts)
         cal_Agloabl(elems, conts)
         alpha = cal_force_multi()
-        #cal_disp_update_x()
-        #input("force maximization finish")
+
         if alpha > 0:
             alphas.append(alpha)
             disps.append(i*disp_incre)
@@ -607,7 +592,6 @@ def main():
             i+=1
         else:
             break
-    plot_elements(elems)
 
     fig, ax = plt.subplots()
     ax.plot(disps, alphas)

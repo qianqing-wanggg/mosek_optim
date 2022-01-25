@@ -39,3 +39,10 @@ But in the work of [Gilbert in 2006][Gilert et al. 2006] and [Ferris in 2001][Fe
 [Francesco et al. 2021]: https://onlinelibrary.wiley.com/doi/full/10.1002/eqe.3512
 [Gilert et al. 2006]: https://www.sciencedirect.com/science/article/abs/pii/S0045794906000356
 [Ferris and Tin-Loi 2001]: https://www.sciencedirect.com/science/article/pii/S0020740399001113?via=ihub#FIG3
+
+
+## Benchmark 4: Dry joint stone shear walls
+
+*shear_wall.py*
+
+This benchmark is from the experiments conducted by Lourenço et al.. It is then modelled with rigid blocks by [Francesco][Francesco et al. 2021] (Figure 8).
