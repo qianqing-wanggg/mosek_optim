@@ -83,21 +83,13 @@ for row in range(nb_course):
         continue
     break
 
+
 for key, value in elems.items():
-    print(key)
-for key, value in elems.items():
-    if len(key) == 5:
-        #length = np.linalg.norm(np.array(nodes[key[0]])-np.array(nodes[key[1]]))
-        #height = np.linalg.norm(np.array(nodes[key[1]])-np.array(nodes[key[2]]))
-        mass = mass_unit
-        value.append(mass)
-        center = 0.5*(np.array(nodes[key[0]])+np.array(nodes[key[2]]))
-        value.append(center)
-    else:
-        mass = 2*mass_unit
-        value.append(mass)
-        center = 0.5*(np.array(nodes[key[0]])+np.array(nodes[key[3]]))
-        value.append(center)
+    mass = mass_unit*((len(key)-3)/2)
+    value.append(mass)
+    center = 0.5*(np.array(nodes[key[0]])+np.array(nodes[key[2]]))
+    value.append(center)
+    
 plot_elements(elems)
 #define contacts:
 def is_subtuple_2(tupA, tupB):
@@ -233,12 +225,18 @@ def main():
             bkc = []
             blc = []
             buc = []
+            elem_index = 0
             for key, value in elems.items():
+                if elem_index == 0:
+                    multi = 100
+                else:
+                    multi = 1
                 bkc.extend([mosek.boundkey.fx,
                         mosek.boundkey.fx,
                         mosek.boundkey.fx])
-                blc.extend([0.0, -value[1], 0.0])
-                buc.extend([0.0, -value[1], 0.0])
+                blc.extend([0.0, -value[1]*multi, 0.0])###########################add N
+                buc.extend([0.0, -value[1]*multi, 0.0])
+                elem_index+=1
 
             # Bound keys and values for constraints -- contact failure condition
             for key, value in conts.items():
@@ -301,8 +299,10 @@ def main():
             i=0
             for key, value in elems.items():
                 col_index.extend([3*i])
-                col_value.extend([-liveload*value[0]])
+                col_value.extend([-liveload])##############add F
+                break
                 i+=1
+
                 
             asub.append(col_index)
             aval.append(col_value)#the live load is applied to the first element and second in the x direction
