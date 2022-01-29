@@ -3,11 +3,11 @@ import numpy as np
 nb_course = 1
 brick_length = 0.5
 brick_height = 3.9
-# brick_length = 0.2
-# brick_height = 1
+brick_length = 0.2
+brick_height = 1
 ro = 18.0
 mass_unit = ro*brick_length*brick_height
-#mass_unit = 3.6
+mass_unit = 3.6
 nodes = dict()
 # nodes = {
 #     1 : [0, brick_height],
@@ -28,7 +28,7 @@ for i in range(0,nb_course+1):
 
 elems = dict()#Fx
 for i in range(0,nb_course):
-    elems[(3*i+1, 3*i+2, 3*i+4, 3*i+3, 3*i+1)] = [0]
+    elems[(3*i+1, 3*i+2, 3*i+4, 3*i+3, 3*i+1)] = [2]
 
 for key, value in elems.items():
     if len(key) == 5:
@@ -46,7 +46,7 @@ for key, value in elems.items():
 
 #define contacts:
 mu = 0.58
-#mu = 0.7
+mu = 0.7
 conts = dict()#ground or not, t,n
 for i in range(0,nb_course):
     conts[(3*i+4, 3*i+3)] = [0, [1,0], [0,1]]
@@ -65,9 +65,9 @@ def Aelem_node(node, elem_center, t, n, reverse = False):
     R = np.array(node) - np.array(elem_center)
     #print(R)
     Alocal = np.matrix([
-       [1*t[0], 1*n[0]],
-       [1*t[1], 1*n[1]],
-       [1*float(np.cross(R,t)), 1*float(np.cross(R,n))]
+       [-1*t[0], -1*n[0]],
+       [-1*t[1], -1*n[1]],
+       [-1*float(np.cross(R,t)), -1*float(np.cross(R,n))]
     ])
     return Alocal
 
@@ -156,12 +156,19 @@ def main():
             bkc = []
             blc = []
             buc = []
+            elem_index = 0
             for key, value in elems.items():
+                if elem_index == 0:
+                    multi = 6*16/4
+                    #multi = 1
+                else:
+                    multi = 1
                 bkc.extend([mosek.boundkey.fx,
                         mosek.boundkey.fx,
                         mosek.boundkey.fx])
-                blc.extend([0.0, value[1], 0.0])
-                buc.extend([0.0, value[1], 0.0])
+                blc.extend([0.0, -value[1]*multi, 0.0])
+                buc.extend([0.0, -value[1]*multi, 0.0])
+                elem_index+=1
 
             # Bound keys and values for constraints -- contact failure condition
             for key, value in conts.items():
@@ -218,9 +225,12 @@ def main():
             #aval.append([liveload])#the live load is applied to the first element in the x direction
             col_index = []
             col_value = []
-            for i in range(nb_course*1):
+            i = 0
+            for key, value in elems.items():
                 col_index.extend([3*i])
-                col_value.extend([liveload])
+                col_value.extend([liveload*value[0]])###########add F
+                break
+                i+=1
             asub.append(col_index)
             aval.append(col_value)#the live load is applied to the first element and second in the x direction
 

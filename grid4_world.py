@@ -54,10 +54,17 @@ plt.show()
 #define elements:
 elems = dict()
 elems[(25,26,27,28,29,4,3,2,1,0,25)] = [4]
+##
 elems[(15,16,17,22,21,20,15)] = [2]
 elems[(17,18,19,24,23,22,17)] = [2]
 elems[(10,11,12,17,16,15,10)] = [2]
 elems[(12,13,14,19,18,17,12)] = [2]
+# ##
+# elems[(10,11,16,21,20,15,10)] = [2]
+# elems[(11,12,17,22,21,16,11)] = [2]
+# elems[(12,13,18,23,22,17,12)] = [2]
+# elems[(13,14,19,24,23,18,13)] = [2]
+
 elems[(5,6,11,10,5)] = [1]
 elems[(6,7,8,13,12,11,6)] = [2]
 elems[(8,9,14,13,8)] = [1]
@@ -131,16 +138,21 @@ for key, value in elems.items():
                     else:#the same y
                         conts[(key[k], key[k+1])] = [0, [1,0], [0,1]]
 
-for key, value in conts.items():
-    print(key)
+
+
 
 #global A matrix
 def Aelem_node(node, elem_center, t, n, reverse = False):
     t = np.array(t)
     n = np.array(n)
+    #print(t)
+    #print(n)
+    #print(reverse)
     if reverse:
         t = t*(-1)
         n = n*(-1)
+    #print(t)
+    #print(n)
     R = np.array(node) - np.array(elem_center)
     #print(R)
     Alocal = np.matrix([
@@ -148,8 +160,18 @@ def Aelem_node(node, elem_center, t, n, reverse = False):
        [-1*t[1], -1*n[1]],
        [-1*float(np.cross(R,t)), -1*float(np.cross(R,n))]
     ])
-    #print(float(np.cross(R,t)))
     return Alocal
+
+#global A matrix
+def is_subtuple_2(tupA, tupB):
+    '''
+    check if tuple A(two elements) is a sub tuple of tuple B
+    '''
+    for i in range(0,len(tupB)-1):
+        if (tupB[i],tupB[i+1]) == tupA:
+            return True
+    
+    return False
 
 Aglobal = np.zeros((3*len(elems), 2*4*len(conts)))
 row = 0
@@ -180,7 +202,7 @@ for key_e, value_e in elems.items():
         col+=8
     row+=3
 
-#print(Aglobal[-3:])
+print(Aglobal)
 
 #global Y matrix
 Y = np.zeros((3*4*len(conts), 2*4*len(conts)))
@@ -228,13 +250,14 @@ def main():
             elem_index = 0
             for key, value in elems.items():
                 if elem_index == 0:
-                    multi = 100
+                    #multi = 6*16/4
+                    multi = 1
                 else:
                     multi = 1
                 bkc.extend([mosek.boundkey.fx,
                         mosek.boundkey.fx,
                         mosek.boundkey.fx])
-                blc.extend([0.0, -value[1]*multi, 0.0])###########################add N
+                blc.extend([0.0, -value[1]*multi, 0.0])
                 buc.extend([0.0, -value[1]*multi, 0.0])
                 elem_index+=1
 
@@ -243,10 +266,7 @@ def main():
                 for i in range(3*4):
                     bkc.append(mosek.boundkey.up)
                     blc.append(-inf)
-                    buc.append(0.0)    
-            # bkc.append(mosek.boundkey.fx)      
-            # blc.append(0.0)
-            # buc.append(0.0) 
+                    buc.append(0.0) 
 
             # Bound keys for variables
             bkx = []
@@ -296,16 +316,16 @@ def main():
             #aval.append([liveload])#the live load is applied to the first element in the x direction
             col_index = []
             col_value = []
-            i=0
+            i = 0
             for key, value in elems.items():
                 col_index.extend([3*i])
-                col_value.extend([-liveload])##############add F
-                break
+                col_value.extend([liveload*value[0]])###########add F
+                #break
                 i+=1
-
-                
             asub.append(col_index)
             aval.append(col_value)#the live load is applied to the first element and second in the x direction
+
+            
             # asub.append([90])
             # aval.append([liveload])#the live load is applied to the first element in the x direction
 
