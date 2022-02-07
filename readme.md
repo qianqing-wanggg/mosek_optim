@@ -1,7 +1,11 @@
 # Rigid block modeling of masonry structures using mathmatical programming
 This is a reproduced work of the article [Rigid block modelling of historic masonry structures using mathematical programming: a unified formulation for non‑linear time history, static pushover and limit equilibrium analysis][Francesco 2019] and [A variational rigid-block modeling approach to nonlinear elastic and kinematic analysis of failure mechanisms in historic masonry structures subjected to lateral loads][Francesco et al. 2021].
 
-## Benchmark 1: static pushover analysis and limit analysis of a single rigid block
+All the scripts are self containing, without importing functions from anothers.
+
+## Benchmarks comparing current implementation and those in the literature
+
+### Benchmark 1: static pushover analysis and limit analysis of a single rigid block
 
 *mono_wall_pushover.py*
 
@@ -11,11 +15,11 @@ This benchmark is originally proposed by [Francesco][Francesco 2019]. We compare
 
 The pushover curve compares fairly well with the reference, as well as the initial critical load multiplier. The slope obtained here is slightly sharper. It could be ascribed to the different solution strategy of the kinematic variables. The implementation here actually solves both [equation 29][Francesco 2019] and [equation 30][Francesco 2019]. But in the article, only [equation 29] is solved and kinematic variables are obtained from Lagrange multipliers associated with the corresponding problem constraints.
 
-## Benchmark 2: limit analysis of two leaves masonry walls
+### Benchmark 2: limit analysis of two leaves masonry walls
 
 This benchmark is to show the impact of number of headers of two leaves masonry walls on the load multiplier of the initial configuration. The two walls studied here are shown in [Figure 11(a)][Francesco 2019] and [Figure 11(b)][Francesco 2019]. The value obtained ...
 
-## Bemchmark 3: static pushover of masonry walls
+### Bemchmark 3: static pushover of masonry walls
 
 *example_1_pushover.py*
 
@@ -41,8 +45,27 @@ But in the work of [Gilbert in 2006][Gilert et al. 2006] and [Ferris in 2001][Fe
 [Ferris and Tin-Loi 2001]: https://www.sciencedirect.com/science/article/pii/S0020740399001113?via=ihub#FIG3
 
 
-## Benchmark 4: Dry joint stone shear walls
+### Benchmark 4: Dry joint stone shear walls *not finished*
 
 *shear_wall.py*
 
 This benchmark is from the experiments conducted by Lourenço et al.. It is then modelled with rigid blocks by [Francesco][Francesco et al. 2021] (Figure 8).
+
+## Studies using current implementation
+
+### Study 1: Limit analysis of 4*4 wall
+
+*grid4_la.py classical*
+*grid4_la.py efficient*
+
+The gloabal mechanical performance of a brick masonry wall can be evaluated by calculating the collapse angle of tilting test using limit analysis. The reinforcement learning agent suggests that interlocking in the first two courses does not win extra gain in global mechanical performance of a 4*4 wall. We hereby investigate the collapse mechanism corresponding to two layouts in the tilting test.
+
+The classical layout and its collapse mechanism is shown as below. The load multiplyer is 0.58.
+
+![classical layout](./figures/study1_classical_initial.png) ![classical layout](./figures/study1_classical_mechanism.png)
+
+The efficient layout and its collapse mechanism is shown as below. The load multiplyer is also 0.58. It is named as 'efficient' because less brick is used to fill up the space.
+
+![efficient layout](./figures/study1_efficient_initial.png) ![efficient layout](./figures/study1_efficient_mechanism.png)
+
+It can be seen that sliding failure happen to both layouts. For classical layout, the surface between the second course and the third course fails. For efficient layout, the bottom surface fails.
