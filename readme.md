@@ -53,7 +53,7 @@ This benchmark is from the experiments conducted by Lourenço et al.. It is then
 
 ## Studies using current implementation
 
-### Study 1: Limit analysis of 4*4 wall
+### Study 1: Limit analysis of 4*4 wall, tilting table load
 
 *grid4_la.py classical*
 *grid4_la.py efficient*
@@ -69,3 +69,21 @@ The efficient layout and its collapse mechanism is shown as below. The load mult
 ![efficient layout](./figures/study1_efficient_initial.png) ![efficient layout](./figures/study1_efficient_mechanism.png)
 
 It can be seen that sliding failure happen to both layouts. For classical layout, the surface between the second course and the third course fails. For efficient layout, the bottom surface fails.
+
+### Study 2: Limit analysis of 4*4 wall, cantilever load
+
+*grid4_canti_3layouts.py classical/efficient/efficientPro*
+
+The same wall in study 1 is charged with a cantilever loading, with veritcal load being 6 times the weight of the wall (scale refered from [Lourenco et al. 2005][https://ascelibrary.org/doi/pdf/10.1061/%28ASCE%290733-9445%282005%29131%3A11%281665%29]).
+
+The classical layout has the highest collapse load, 11.92(unit weight). The collapse mechanism is shown below:
+
+![canti load classical layout](./figures/study2_classical_mechanism.png)
+
+The efficient layout has the smallest collapse load, 11.58(unit weight). But the difference is not remarkeble. Below is its collapse mechanism:
+
+![canti load efficient layout](./figures/study2_efficient_mechanism.png)
+
+Another layout has the most efficiency, with the least number of actions to fill the wall. Its collapse load is 11.72(unit weight). The collapse mechanism is:
+
+![canti load efficientPro layout](./figures/study2_efficientPro_mechanism.png)

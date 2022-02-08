@@ -1,20 +1,28 @@
+'''
+this implementatation is used for integring in and reinforcement learning agent's reward function
+'''
 import numpy as np
+#plot elements
 import matplotlib.pyplot as plt
 from matplotlib import collections  as mc
 import math
+import argparse
 
-disp_incre = 0.1
-node_crutial = 8 #control node index
+parser = argparse.ArgumentParser()
+parser.add_argument('layout', type = str, help = "choose classical, efficient or efficientPro layout")
+args = parser.parse_args()
+layout = args.layout
 
+#define nodes:
 nb_course = 4
 nb_unit = 4
 unit_length = 1
 unit_height = 1
 mass_unit = 1
 print_detail = True
+mu = 0.58
 
-#define nodes:
-nodes = dict()#key is the node index, value is the xy coordinate
+nodes = dict()
 for i in range(0,nb_course*2+1):
     for col in range(1, nb_unit*2+1):
         nodes[(nb_unit*2)*i+col] = [math.floor(col/2)*unit_length, (nb_course-math.floor((i+1)/2))*unit_height]
@@ -28,43 +36,177 @@ nodes[79] = [2*unit_length, 4*unit_height]
 nodes[80] = [3*unit_length, 4*unit_height]
 nodes[81] = [3*unit_length, 4*unit_height]
 nodes[82] = [4*unit_length, 4*unit_height]
-#define elements:
-elems = dict()#key is the boundary node index, value is the element size, mass, center
-elems[(73,74,82,81,80,79,78,77,76,75,73)] = [4]
-row_incr = 4*nb_unit*2
-unit_ri = nb_unit*2
-for row in range(int(nb_course/2)):
-    for col in range(int(nb_unit/2)):
-        elems[(row_incr*row+col*4+1, row_incr*row+col*4+2, row_incr*row+col*4+3, row_incr*row+col*4+4, \
-                row_incr*row+col*4+4+unit_ri, row_incr*row+col*4+3+unit_ri, row_incr*row+col*4+2+unit_ri, row_incr*row+col*4+1+unit_ri, row_incr*row+col*4+1)] = [2]
-    elems[(row_incr*row+1+unit_ri*2, row_incr*row+2+unit_ri*2, row_incr*row+2+unit_ri*3, row_incr*row+1+unit_ri*3, row_incr*row+1+unit_ri*2)] = [1]
-    for col in range(int(nb_unit/2)-1):
-        elems[(row_incr*row+col*4+unit_ri*2+3, row_incr*row+col*4+unit_ri*2+4, row_incr*row+col*4+unit_ri*2+5, row_incr*row+col*4+unit_ri*2+6, \
-                row_incr*row+col*4+unit_ri*2+6+unit_ri, row_incr*row+col*4+unit_ri*2+5+unit_ri, row_incr*row+col*4+unit_ri*2+4+unit_ri, row_incr*row+col*4+unit_ri*2+3+unit_ri, row_incr*row+col*4+unit_ri*2+3)] = [2]
-    elems[(row_incr*row+unit_ri*3-1, row_incr*row+unit_ri*3, row_incr*row+row_incr, row_incr*row+unit_ri*4-1, row_incr*row+unit_ri*3-1)] = [1]
 
+#define elements:
+elems = dict()
+elems[(73,74,82,81,80,79,78,77,76,75,73)] = [4]
+if layout == 'classical':
+# _________
+# |_|___|_|
+# |___|___|
+# |_|___|_|
+# |___|___|
+    elems[1,2,10,9,1] = [1]
+    elems[3,4,5,6,14,13,12,11,3] = [2]
+    elems[7,8,16,15,7] = [1]
+    elems[17,18,19,20,28,27,26,25,17] = [2]
+    elems[21,22,23,24,32,31,30,29,21] = [2]
+    elems[33,34,42,41,33] = [1]
+    elems[35,36,37,38,46,45,44,43,35] = [2]
+    elems[39,40,48,47,39] = [1]
+    elems[49,50,51,52,60,59,58,57,49] = [2]
+    elems[53,54,55,56,64,63,62,61,53] = [2]
+elif layout == 'efficient':
+# __________
+# |___|___|
+# |_|___|_|
+# |___|___|
+# |___|___|
+    elems[1,2,3,4,12,11,10,9,1] = [2]
+    elems[5,6,7,8,16,15,14,13,5] = [2]
+    elems[17,18,26,25,17] = [1]
+    elems[19,20,21,22,30,29,28,27,19] = [2]
+    elems[23,24,32,31,23] = [1]
+    elems[33,34,35,36,44,43,42,41,33] = [2]
+    elems[37,38,39,40,48,47,46,45,37] = [2]
+    elems[49,50,51,52,60,59,58,57,49] = [2]
+    elems[53,54,55,56,64,63,62,61,53] = [2]
+
+elif layout == 'efficientPro':
+# __________
+# |___|___|
+# | |___| |
+# |_|___|_|
+# |___|___|
+    elems[1,2,3,4,12,11,10,9,1] = [2]
+    elems[5,6,7,8,16,15,14,13,5] = [2]
+    elems[17,18,26,34,42,41,33,25,17] = [2]
+    elems[19,20,21,22,30,29,28,27,19] = [2]
+    elems[35,36,37,38,46,45,44,43,35] = [2]
+    elems[23,24,32,40,48,47,39,31,23] = [2]
+    elems[49,50,51,52,60,59,58,57,49] = [2]
+    action = np.zeros((nb_course,nb_unit))
+    action[3:4,2:4] = 1
+
+    for row in range(nb_course):
+        for col in range(nb_unit):
+            if action[row][col]!=0:
+                if row < nb_course-1 and action[row+1][col]!=0:
+                    elems[2*nb_unit*2*row+1+2*col, 2*nb_unit*2*row+1+2*col+1, 2*nb_unit*2*row+1+2*col+9, 2*nb_unit*2*row+1+2*col+17, \
+                    2*nb_unit*2*row+1+2*col+25, 2*nb_unit*2*row+1+2*col+24, 2*nb_unit*2*row+1+2*col+16, 2*nb_unit*2*row+1+2*col+8,2*nb_unit*2*row+1+2*col] = [2]
+                elif col < nb_unit-1 and action[row][col+1]!=0:
+                    elems[2*nb_unit*2*row+1+2*col, 2*nb_unit*2*row+1+2*col+1, 2*nb_unit*2*row+1+2*col+2, 2*nb_unit*2*row+1+2*col+3\
+                    ,2*nb_unit*2*row+1+2*col+11, 2*nb_unit*2*row+1+2*col+10, 2*nb_unit*2*row+1+2*col+9, 2*nb_unit*2*row+1+2*col+8, 2*nb_unit*2*row+1+2*col] = [2]
+                else:
+                    elems[2*nb_unit*2*row+1+2*col, 2*nb_unit*2*row+1+2*col+1, 2*nb_unit*2*row+1+2*col+9, 2*nb_unit*2*row+1+2*col+8, 2*nb_unit*2*row+1+2*col] = [1]
+                break
+        else:
+            continue
+        break
+
+def init_elem_center_mass(elems):
+    for key, value in elems.items():
+        if len(key) == 5:
+            #length = np.linalg.norm(np.array(nodes[key[0]])-np.array(nodes[key[1]]))
+            #height = np.linalg.norm(np.array(nodes[key[1]])-np.array(nodes[key[2]]))
+            mass = mass_unit
+            value.append(mass)
+            center = 0.5*(np.array(nodes[key[0]])+np.array(nodes[key[2]]))
+            value.append(center)
+        elif len(key) == 9:
+            mass = 2*mass_unit
+            value.append(mass)
+            center = 0.5*(np.array(nodes[key[0]])+np.array(nodes[key[4]]))
+            value.append(center)
+        else:
+            mass = 4*mass_unit
+            value.append(mass)
+            center = 0.5*(np.array(nodes[key[0]])+np.array(nodes[key[2]]))
+            value.append(center)
+init_elem_center_mass(elems)
 #define contacts:
-mu = 0.58
-#mu = 0.7
-conts = dict()#key is the node index, value: vertical(0)/horizontal(1), t, n
-for row in range(int(nb_course/2)):
-    for col in range(int(nb_unit/2)-1):
-        conts[(row_incr*row+col*4+4+unit_ri, row_incr*row+col*4+4, row_incr*row+col*4+5+unit_ri, row_incr*row+col*4+5)] = [0, [0,-1], [1,0]]
-    for col in range(nb_unit):
-        conts[(row_incr*row+col*2+2+unit_ri, row_incr*row+col*2+1+unit_ri, row_incr*row+col*2+2+unit_ri*2, row_incr*row+col*2+1+unit_ri*2)] = [1, [1,0], [0,1]]
-    for col in range(int(nb_unit/2)):
-        conts[(row_incr*row+col*4+2+unit_ri*3, row_incr*row+col*4+2+unit_ri*2, row_incr*row+col*4+3+unit_ri*3, row_incr*row+col*4+3+unit_ri*2)] = [0, [0,-1], [1,0]]
-    for col in range(nb_unit):
-        conts[(row_incr*row+col*2+2+unit_ri*3, row_incr*row+col*2+1+unit_ri*3, row_incr*row+col*2+2+row_incr, row_incr*row+col*2+1+row_incr)] = [1, [1,0], [0,1]]
-conts[(76,75,2,1)]= [1, [1,0], [0,1]]
-conts[(78,77,4,3)]= [1, [1,0], [0,1]]
-conts[(80,79,6,5)]= [1, [1,0], [0,1]]
-conts[(82,81,8,7)]= [1, [1,0], [0,1]]
+def is_subtuple_2(tupA, tupB):
+    '''
+    check if tuple A(two elements) is a sub tuple of tuple B
+    '''
+    for i in range(0,len(tupB)-1):
+        if (tupB[i],tupB[i+1]) == tupA:
+            return True
+    
+    return False
+
+def is_same_point(pA,pB):
+    if nodes[pA][0] == nodes[pB][0] and nodes[pA][1] == nodes[pB][1]:
+        return True
+    else:
+        return False
+
+def is_same_seg(segA_tup,segB_tup):
+    if is_same_point(segA_tup[0], segB_tup[0]) and is_same_point(segA_tup[1], segB_tup[1]):
+        return True
+    else:
+        return False
+
+def is_contact(tupA, tupB):
+    '''
+    check if segment(tupA) from element A is in contact with element B (represented by boundary points, tupB)
+    tupA is on top/on the left of tupB
+    '''
+    for i in range(0,len(tupB)-1):
+        if is_same_seg((tupB[i],tupB[i+1]), tupA):
+            return True, tupA, (tupB[i],tupB[i+1])
+    return False, None, None
+
+def cal_direction(seg_tup):
+    if nodes[seg_tup[0]][0] == nodes[seg_tup[1]][0]:#if x is the same
+        return 'vertical'
+    elif nodes[seg_tup[0]][1] == nodes[seg_tup[1]][1]:#if y is the same
+        return 'horizontal'
+
+def zero_length(seg):
+    if is_same_point(seg[0], seg[1]):
+        return True
+    else:
+        return False
+
+conts = dict()
+##contact with ground
+conts[(58,57,66,65)]= [1, [1,0], [0,1]]
+conts[(60,59,68,67)]= [1, [1,0], [0,1]]
+conts[(62,61,70,69)]= [1, [1,0], [0,1]]
+conts[(64,63,72,71)]= [1, [1,0], [0,1]]
+#iterate through all elems
+for key, value in elems.items():
+    for k in range(len(key)-1):#iterate key tuple
+        direction = cal_direction((key[k+1], key[k]))
+        for key_compare, value_compare in elems.items():#iterate all elems
+            if value[-1][0] == value_compare[-1][0] and value[-1][1] == value_compare[-1][1]:
+                continue
+            #assure the order of input for in_contact function
+            if direction == 'horizontal':
+                if value[-1][1] > value_compare[-1][1]:
+                    in_contact, seg1, seg2 = is_contact((key[k+1], key[k]), key_compare)
+                else:
+                    in_contact, seg1, seg2 = is_contact(key_compare, (key[k+1], key[k]))
+            if direction == 'vertical':
+                if value[-1][0] < value_compare[-1][0]:
+                    in_contact, seg1, seg2 = is_contact((key[k+1], key[k]), key_compare)
+                else:
+                    in_contact, seg1, seg2 = is_contact(key_compare, (key[k+1], key[k]))
+
+            if in_contact:
+                if zero_length(seg1) or zero_length(seg2):
+                    continue
+                if direction == 'horizontal':
+                    conts[seg1[1], seg1[0], seg2[1], seg2[0]] = [1, [1,0], [0,1]]
+                else:
+                    conts[seg1[0], seg1[1], seg2[0], seg2[1]] = [0, [0,-1], [1,0]]
 # print(len(conts))
 # for key, value in conts.items():
 #     print(key)
 # import sys
 # sys.exit(0)
+
 def plot_elements(elems, title = 'initial elements'):
     lines = []
     d = 0
@@ -144,25 +286,6 @@ def update_node_coor(elems, disps=[]):
         d+=1
 
 
-def init_elem_center_mass(elems):
-    for key, value in elems.items():
-        if len(key) == 5:
-            #length = np.linalg.norm(np.array(nodes[key[0]])-np.array(nodes[key[1]]))
-            #height = np.linalg.norm(np.array(nodes[key[1]])-np.array(nodes[key[2]]))
-            mass = mass_unit
-            value.append(mass)
-            center = 0.5*(np.array(nodes[key[0]])+np.array(nodes[key[2]]))
-            value.append(center)
-        elif len(key) == 9:
-            mass = 2*mass_unit
-            value.append(mass)
-            center = 0.5*(np.array(nodes[key[0]])+np.array(nodes[key[4]]))
-            value.append(center)
-        else:
-            mass = 4*mass_unit
-            value.append(mass)
-            center = 0.5*(np.array(nodes[key[0]])+np.array(nodes[key[2]]))
-            value.append(center)
 
 def cal_elem_center(elems):
     for key, value in elems.items():
@@ -175,7 +298,6 @@ def cal_elem_center(elems):
         else:
             center = 0.5*(np.array(nodes[key[0]])+np.array(nodes[key[2]]))
             value.append(center)
-init_elem_center_mass(elems)
 plot_elements(elems)
 
 
@@ -187,13 +309,17 @@ def dist_point_line(point, line_p1, line_p2):
     cb_2 = np.sum(np.power(point - line_p2,2))
     ab_dot_cb_2 = np.power(np.dot((line_p1 - line_p2), (point - line_p2)),2)
     ab_2 = np.sum(np.power(line_p1-line_p2, 2))
+    #print(line_p1, line_p2)
     if cb_2 < ab_dot_cb_2/ab_2:
         return 0
+    # print(f'cb_2 is {cb_2}')
+    # print(f'ab_dot_cb_2 is {ab_dot_cb_2}')
+    # print(f'ab_2 is {ab_2}')
+    #print(cb_2 - ab_dot_cb_2/ab_2)
     return np.sqrt(cb_2 - ab_dot_cb_2/ab_2)
 #g matrix
-g = []
 
-def cal_gap(conts):
+def cal_gap(conts, g):
     g.clear()
     for key, value in conts.items():#correspondence with A matrix, key[0][1][3][2]
         g.append(0)
@@ -204,6 +330,7 @@ def cal_gap(conts):
         g.append(dist_point_line(nodes[key[2]],nodes[key[0]], nodes[key[1]]))
         g.append(0)
         g.append(dist_point_line(nodes[key[3]],nodes[key[0]], nodes[key[1]]))
+    return g
     #print(g)
 
 def Aelem_node(node, elem_center, t, n, reverse = False):
@@ -237,8 +364,9 @@ def is_subtuple_2(tupA, tupB):
     
     return False
 
-Aglobal = np.zeros((3*len(elems), 2*4*len(conts)))
-def cal_Agloabl(elems, conts):
+
+def cal_Aglobal(elems, conts):
+    Aglobal = np.zeros((3*len(elems), 2*4*len(conts)))
     row = 0
     for key_e, value_e in elems.items():
         col = 0
@@ -266,33 +394,36 @@ def cal_Agloabl(elems, conts):
                 Aglobal[row:row+3, col:col+8] = np.zeros((3,8))
             col+=8
         row+=3
+    return Aglobal
 
 #print(Aglobal[-3:])
 
 #global Y matrix
-Y = np.zeros((3*4*len(conts), 2*4*len(conts)))
-yunit = np.matrix([
-    [1, -mu],
-    [-1, -mu],
-    [0,-1]
-])
+def cal_Y(conts):
+    Y = np.zeros((3*4*len(conts), 2*4*len(conts)))
+    yunit = np.matrix([
+        [1, -mu],
+        [-1, -mu],
+        [0,-1]
+    ])
 
-yunit_no_fric = np.matrix([
-    [1, 0],
-    [-1, 0],
-    [0,-1]
-])
+    yunit_no_fric = np.matrix([
+        [1, 0],
+        [-1, 0],
+        [0,-1]
+    ])
 
-index = 0
-for key, value in conts.items():
-    if value[0]>0:
-        for i in range(4):
-            Y[index*3:index*3+3, index*2:index*2+2] = yunit
-            index+=1
-    else:
-        for i in range(4):
-            Y[index*3:index*3+3, index*2:index*2+2] = yunit_no_fric
-            index+=1        
+    index = 0
+    for key, value in conts.items():
+        if value[0]>0:
+            for i in range(4):
+                Y[index*3:index*3+3, index*2:index*2+2] = yunit
+                index+=1
+        else:
+            for i in range(4):
+                Y[index*3:index*3+3, index*2:index*2+2] = yunit_no_fric
+                index+=1
+    return Y        
 #print(Y)
 
 #liveload
@@ -311,7 +442,7 @@ def streamprinter(text):
     sys.stdout.write(text)
     sys.stdout.flush()
 
-def cal_force_multi():
+def cal_force_multi(g, Aglobal, Y):
     # Make mosek environment
     with mosek.Env() as env:
         # Create a task object
@@ -465,7 +596,7 @@ def cal_force_multi():
                     print("Other solution status")
                 return 0
 
-def cal_disp_update_x():
+def cal_disp_update_x(g, Aglobal, Y):
     # Make mosek environment
     with mosek.Env() as env:
         # Create a task object
@@ -602,52 +733,29 @@ def cal_disp_update_x():
                     for i in range(numvar):
                         print("x[" + str(i) + "]=" + str(xx[i]))
                 #plot_elements(elems, xx, title = 'mechanism under horizontal load')
-                factor = normalize_disp_factor(elems, xx)
-                for i in range(len(xx)):
-                    xx[i] = xx[i]/factor
+                # factor = normalize_disp_factor(elems, xx)
+                # for i in range(len(xx)):
+                #     xx[i] = xx[i]/factor
                 update_node_coor(elems, xx)
                 cal_elem_center(elems)
-                #plot_elements(elems)
+                plot_elements(elems,'collapse mechanism from limit analysis')
             else:
                 if print_detail:
                     print("Other solution status")
 
-def limit_analysis_initial():
-    cal_gap(conts)
-    cal_Agloabl(elems, conts)
-    alpha = cal_force_multi()
-    cal_disp_update_x()
-    plot_elements(elems,title  = 'collapse mechanism')
+def main():
+    g = []
+    g = cal_gap(conts,g)
+    Aglobal = cal_Aglobal(elems, conts)
+    Y = cal_Y(conts)
+    alpha = cal_force_multi(g, Aglobal,Y)
+    cal_disp_update_x(g, Aglobal,Y)
+    print(f"the load multipliyer is {alpha}")
     
-
-
-def push_over():
-    alphas = []
-    disps = []
-    i = 0
-    while True:
-        cal_gap(conts)
-        cal_Agloabl(elems, conts)
-        alpha = cal_force_multi()
-
-        if alpha > 0:
-            alphas.append(alpha)
-            disps.append(i*disp_incre)
-            cal_disp_update_x()
-            if i*disp_incre == 0.2:
-                plot_elements(elems,title  = 'collapse mechanism at d = 0.2m')
-            i+=1
-        else:
-            break
-
-    fig, ax = plt.subplots()
-    ax.plot(disps, alphas)
-    ax.set_xlabel('displacemnet')
-    ax.set_ylabel('force multiplier')
-    plt.show()
+    #cal_disp_update_x()
 # call the main function
 try:
-    limit_analysis_initial()
+    main()
 except mosek.Error as e:
     print("ERROR: %s" % str(e.errno))
     if e.msg is not None:
@@ -657,3 +765,4 @@ except:
     import traceback
     traceback.print_exc()
     sys.exit(1)
+
