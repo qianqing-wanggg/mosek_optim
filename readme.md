@@ -90,6 +90,21 @@ Another layout has the most efficiency, with the least number of actions to fill
 
 
 More configurations and their load multiplier:
+11.554451006525497
+![7](./figures/study2_7_mechanism.png)
+11.419514678075792
+![3](./figures/study2_3_mechanism.png)
+11.286324310041346
+![6](./figures/study2_6_mechanism.png)
+11.251869922487803
+![5](./figures/study2_5_mechanism.png)
+11.227424439243126
+![4](./figures/study2_4_mechanism.png)
+
+
+
+But if the mu of vertical contacts are set to zero(no friction), the load multiplier order from large to small:
+
 11.305555555555559
 ![3](./figures/study2_3_mechanism.png)
 11.04310344827586
@@ -98,5 +113,5 @@ More configurations and their load multiplier:
 ![4](./figures/study2_4_mechanism.png)
 10.967432950191577
 ![6](./figures/study2_6_mechanism.png)
-10.544464609800363
+10.544464
 ![7](./figures/study2_7_mechanism.png)
