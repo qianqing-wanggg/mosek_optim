@@ -90,8 +90,13 @@ Another layout has the most efficiency, with the least number of actions to fill
 
 
 More configurations and their load multiplier:
+11.305555555555559
 ![3](./figures/study2_3_mechanism.png)
-![4](./figures/study2_4_mechanism.png)
+11.04310344827586
 ![5](./figures/study2_5_mechanism.png)
+10.967432950191572
+![4](./figures/study2_4_mechanism.png)
+10.967432950191577
 ![6](./figures/study2_6_mechanism.png)
+10.544464609800363
 ![7](./figures/study2_7_mechanism.png)
