@@ -87,3 +87,11 @@ The efficient layout has the smallest collapse load, 11.58(unit weight). But the
 Another layout has the most efficiency, with the least number of actions to fill the wall. Its collapse load is 11.72(unit weight). The collapse mechanism is:
 
 ![canti load efficientPro layout](./figures/study2_efficientPro_mechanism.png)
+
+
+More configurations and their load multiplier:
+![3](./figures/study2_3_mechanism.png)
+![4](./figures/study2_4_mechanism.png)
+![5](./figures/study2_5_mechanism.png)
+![6](./figures/study2_6_mechanism.png)
+![7](./figures/study2_7_mechanism.png)
